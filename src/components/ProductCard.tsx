@@ -1,4 +1,6 @@
 // src/components/ProductCard.tsx
+import { Link } from 'react-router-dom';  // NOVO IMPORT!
+import { useCart } from '../contexts/CartContext';
 
 // 1. Modelo de dados do produto (o que um produto realmente é)
 export interface ProductData {
@@ -18,9 +20,19 @@ export interface ProductCardProps {
 
 // 3. Componente agora recebe 'id' via props (embora não usado visualmente ainda)
 function ProductCard({ product, onAddToCart }: ProductCardProps) {
+
+    // Usando o contexto do carrinho
+    const { addToCart } = useCart();
+
     const handleCartClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault(); // Previne comportamentos padrão
-        onAddToCart(product.id); // Chama a função passada pelo pai
+
+        // Chamar AMBAS as funções: a local e a do contexto
+        onAddToCart(product.id);  // Mantém funcionalidade existente
+        addToCart();               // Atualiza o contador global
+
+        // Mostrar feedback visual consistente
+        alert(`${product.title} foi adicionado ao carrinho!`);
     };
 
     return (
@@ -44,17 +56,15 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
                     <h5 className="card-title">{product.title}</h5>
                     <p className="card-text mb-2 flex-grow-1">{product.description}</p>
                     <p className="card-text fw-bold fs-5 mb-3">
-                        R$ {product.price.toFixed(2).replace('.', ',')}
+                        R$ {Number(product.price).toFixed(2).replace('.', ',')}
                     </p>
-                    <div className="mt-auto"> {/* Empurra botões para baixo */}
-                        <a href="#" className="btn btn-outline-primary btn-sm me-2 mb-3">
+                    <div className="mt-auto pt-2 d-flex flex-column flex-sm-row justify-content-center gap-2">
+                        <Link to={`/product/${product.id}`} className="btn btn-outline-primary btn-sm w-100">
                             Ver Detalhes
-                        </a>
-                        <button
-                            className="btn btn-success btn-sm"
-                            onClick={handleCartClick}
-                        >
-                            <i className="bi bi-cart-plus"></i> Adicionar ao Carrinho
+                        </Link>
+                        <button className="btn btn-success btn-sm w-100" onClick={handleCartClick}>
+                            <i className="bi bi-cart-plus me-1"></i>
+                            Adicionar ao Carrinho
                         </button>
                     </div>
                 </div>
